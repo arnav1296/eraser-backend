@@ -1,8 +1,9 @@
-# eraser-backend
-# ✍️ Eraser - Backend (version 1)
+# eraser-backend# 
+
+✍️ Eraser - Backend (version-1)
 
 This is the backend server for **Eraser**, a real-time collaborative whiteboard app.  
-Built using **Node.js**, **Express**, **Prisma ORM**, and **PostgreSQL**.
+Built using **Node.js**, **Express**, **Prisma ORM**, and **SQLite** for local development.
 
 ---
 
@@ -10,8 +11,8 @@ Built using **Node.js**, **Express**, **Prisma ORM**, and **PostgreSQL**.
 
 ### 🔐 Authentication
 - `POST /auth/google`  
-  Authenticate user via Google OAuth and issue a JWT token.
-- JWT middleware is used to protect private routes.
+  Authenticate user via Google OAuth and issue JWT token.
+- JWT middleware used to protect private routes.
 
 ---
 
@@ -41,18 +42,19 @@ Built using **Node.js**, **Express**, **Prisma ORM**, and **PostgreSQL**.
 
 ---
 
-### 🗄️ Database (PostgreSQL via Prisma)
+### 🗄️ Database (SQLite via Prisma)
 - **Tables:**
   - `users`
   - `boards` (includes soft delete, `title`, `userId`)
   - `strokes` (includes `points`, `boardId`)
+- Uses SQLite (`dev.db`) locally — can be swapped with PostgreSQL later
 
 ---
 
 ## 📦 Tech Stack
 - **Node.js** + **Express**
 - **Prisma ORM**
-- **PostgreSQL** (local or hosted)
+- **SQLite** (development)
 - **JWT** Authentication
 - **Google OAuth** via `@react-oauth/google`
 
@@ -69,10 +71,26 @@ Real-time drawing synchronization (Yjs + WebSocket server) will be introduced in
 # 1. Install dependencies
 npm install
 
-# 2. Setup .env (PostgreSQL URL + JWT secret)
+# 2. Setup .env
+#    (JWT_SECRET, etc. — no DB_URL needed for SQLite)
 
-# 3. Generate Prisma client
-npx prisma generate
+# 3. Generate Prisma client & migrate
+npx prisma migrate dev --name init
 
-# 4. Run the dev server
+# 4. Run dev server
 npm run dev
+
+
+API ROUTE OVERVIEW-
+
+| Method | Route                 | Description                 |
+| ------ | --------------------- | --------------------------- |
+| POST   | `/auth/google`        | Authenticate via Google     |
+| GET    | `/me`                 | Get current user            |
+| POST   | `/boards`             | Create new board            |
+| GET    | `/boards`             | List user’s boards          |
+| GET    | `/boards/:id`         | Get a board by ID           |
+| PATCH  | `/boards/:id`         | Rename a board              |
+| DELETE | `/boards/:id`         | Soft delete a board         |
+| POST   | `/boards/:id/strokes` | Save drawing strokes        |
+| GET    | `/boards/:id/strokes` | Get all strokes for a board |
