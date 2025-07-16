@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite" // for local use, or "postgresql" if later switching to Neon
+  url      = env("DATABASE_URL")
+}
+
+model Stroke {
+  id          String   @id @default(uuid())
+  tool        String
+  color       String
+  strokeWidth Int
+  points      Json
+  user        String
+  createdAt   DateTime  @default(now())
+  boardId     String
+  board       Board     @relation(fields: [boardId], references: [id])
+
+  @@index([boardId])
+}
+
+model Board {
+  id        String    @id @default(uuid())
+  name      String
+  strokes   Stroke[]
+  createdAt DateTime  @default(now())
+}
