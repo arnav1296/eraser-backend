@@ -195,7 +195,27 @@ router.put("/strokes/:id", async (req, res) => {
 });
 
 //delete stroke
+router.delete("/strokes/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ error: "Please provide a valid stroke ID" });
+    }
 
+    const stroke = await prisma.stroke.delete({
+      where: { id },
+    });
+
+    if (!stroke) {
+      return res.status(404).json({ error: "Stroke not found" });
+    }
+
+    res.json({ msg: `Stroke ${id} deleted successfully` });
+  } catch (err) {
+    console.error("Error deleting stroke: ", err);
+    res.status(500).json({ error: "Error deleting stroke" });
+  }
+});
   
 
 module.exports = router;
