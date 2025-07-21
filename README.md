@@ -1,96 +1,112 @@
-# eraser-backend# 
+✍️ Eraser - Backend (version-1) ✅ (Completed)
+This is the backend server for Eraser, a real-time collaborative whiteboard app.
+Built using Node.js, Express, Prisma ORM, and SQLite for local development.
 
-✍️ Eraser - Backend (version-1)
+✅ Features – Version 1 (Completed)
+🔐 Authentication (Test Only – No Login)
+No login, no user registration, and no real profiles.
 
-This is the backend server for **Eraser**, a real-time collaborative whiteboard app.  
-Built using **Node.js**, **Express**, **Prisma ORM**, and **SQLite** for local development.
+A test JWT token is manually used to access protected routes.
 
----
+Use jwt.io to generate a token with a test payload like:
 
-## ✅ Features – Version 1
+json
+Copy
+Edit
+{
+  "userId": "test-user-123"
+}
+Include the token in the Authorization header as:
 
-### 🔐 Authentication
-- `POST /auth/google`  
-  Authenticate user via Google OAuth and issue JWT token.
-- JWT middleware used to protect private routes.
+http
+Copy
+Edit
+Authorization: Bearer <your_token>
+⚠️ This is for local development/testing only. No user data is stored.
 
----
+🧩 Board Management
+POST /boards – Create a new board (with optional title)
 
-### 👤 User Management
-- Stores users on first login via Google.
-- Fields stored: `id`, `email`, `name`, `createdAt`
+GET /boards – List all boards of the test user
 
----
+GET /boards/:id – Fetch a specific board by ID
 
-### 🧩 Board Management
-- `POST /boards` – Create a new board (with optional `title`)
-- `GET /boards` – List all boards of the logged-in user
-- `GET /boards/:id` – Fetch a specific board by ID
-- `PATCH /boards/:id` – Rename a board
-- `DELETE /boards/:id` – Soft delete a board
+PATCH /boards/:id – Rename a board
 
----
+DELETE /boards/:id – Soft delete a board
 
-### 🖊️ Stroke Management
-- `POST /boards/:id/strokes` – Save strokes (XY point data) for a board
-- `GET /boards/:id/strokes` – Retrieve all strokes for a given board
+🖊️ Stroke Management
+POST /boards/:id/strokes – Save strokes (XY point data) for a board
 
----
+GET /boards/:id/strokes – Retrieve all strokes for a given board
 
-### 🙋 Current User
-- `GET /me` – Get authenticated user details from JWT
+🙋 Current User
+GET /me – Returns test user info from JWT payload
 
----
+🗄️ Database (SQLite via Prisma)
+Tables:
 
-### 🗄️ Database (SQLite via Prisma)
-- **Tables:**
-  - `users`
-  - `boards` (includes soft delete, `title`, `userId`)
-  - `strokes` (includes `points`, `boardId`)
-- Uses SQLite (`dev.db`) locally — can be swapped with PostgreSQL later
+boards (includes soft delete, title, userId)
 
----
+strokes (includes points, boardId)
 
-## 📦 Tech Stack
-- **Node.js** + **Express**
-- **Prisma ORM**
-- **SQLite** (development)
-- **JWT** Authentication
-- **Google OAuth** via `@react-oauth/google`
+No users table is used in v1.
 
----
+Uses SQLite (dev.db) locally — can be swapped with PostgreSQL later.
 
-## 🚧 Real-time sync is not included in v1
-Real-time drawing synchronization (Yjs + WebSocket server) will be introduced in **v2**.
+📦 Tech Stack
+Node.js + Express
 
----
+Prisma ORM
 
-## 🧪 Setup Instructions
+SQLite (for development)
 
-```bash
+JWT (test-only, no real auth)
+
+🚧 Real-time sync is not included in v1
+Real-time drawing synchronization (Yjs + WebSocket server) will be introduced in v2.
+
+🧪 Setup Instructions
+bash
+Copy
+Edit
 # 1. Install dependencies
 npm install
 
 # 2. Setup .env
-#    (JWT_SECRET, etc. — no DB_URL needed for SQLite)
+#    Add a JWT_SECRET used to decode test tokens
 
 # 3. Generate Prisma client & migrate
 npx prisma migrate dev --name init
 
 # 4. Run dev server
 npm run dev
+🌐 Frontend Integration
+In your Vite frontend .env file:
 
+env
+Copy
+Edit
+VITE_API_URL=http://localhost:5000
+Use it like this in your frontend code:
 
-API ROUTE OVERVIEW-
+js
+Copy
+Edit
+const apiUrl = import.meta.env.VITE_API_URL;
 
-| Method | Route                 | Description                 |
-| ------ | --------------------- | --------------------------- |
-| POST   | `/auth/google`        | Authenticate via Google     |
-| GET    | `/me`                 | Get current user            |
-| POST   | `/boards`             | Create new board            |
-| GET    | `/boards`             | List user’s boards          |
-| GET    | `/boards/:id`         | Get a board by ID           |
-| PATCH  | `/boards/:id`         | Rename a board              |
-| DELETE | `/boards/:id`         | Soft delete a board         |
-| POST   | `/boards/:id/strokes` | Save drawing strokes        |
-| GET    | `/boards/:id/strokes` | Get all strokes for a board |
+fetch(`${apiUrl}/boards`, {
+  headers: {
+    Authorization: `Bearer <your_test_jwt_token>`,
+  },
+});
+📘 API ROUTE OVERVIEW
+Method	Route	Description
+GET	/me	Get test user info
+POST	/boards	Create new board
+GET	/boards	List all boards (test user)
+GET	/boards/:id	Get a board by ID
+PATCH	/boards/:id	Rename a board
+DELETE	/boards/:id	Soft delete a board
+POST	/boards/:id/strokes	Save drawing strokes
+GET	/boards/:id/strokes	Get all strokes for a board
