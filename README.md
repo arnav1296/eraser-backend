@@ -1,4 +1,7 @@
-✍️ Eraser - Backend (version-1) ✅ (Completed)
+✍️ Eraser - Backend (version-1) 
+✅ (Completed)
+
+
 This is the backend server for Eraser, a real-time collaborative whiteboard app.
 Built using Node.js, Express, Prisma ORM, and SQLite for local development.
 
