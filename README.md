@@ -78,24 +78,21 @@ npm install
 
 # 2. Setup .env
 #    Add a JWT_SECRET used to decode test tokens
+set JWT_SECRET
 
 # 3. Generate Prisma client & migrate
 npx prisma migrate dev --name init
 
 # 4. Run dev server
 npm run dev
+
 🌐 Frontend Integration
+
 In your Vite frontend .env file:
-
-env
-Copy
-Edit
 VITE_API_URL=http://localhost:5000
-Use it like this in your frontend code:
 
-js
-Copy
-Edit
+
+Use it like this in your frontend code:
 const apiUrl = import.meta.env.VITE_API_URL;
 
 fetch(`${apiUrl}/boards`, {
@@ -103,13 +100,15 @@ fetch(`${apiUrl}/boards`, {
     Authorization: `Bearer <your_test_jwt_token>`,
   },
 });
-📘 API ROUTE OVERVIEW
-Method	Route	Description
-GET	/me	Get test user info
-POST	/boards	Create new board
-GET	/boards	List all boards (test user)
-GET	/boards/:id	Get a board by ID
-PATCH	/boards/:id	Rename a board
-DELETE	/boards/:id	Soft delete a board
-POST	/boards/:id/strokes	Save drawing strokes
-GET	/boards/:id/strokes	Get all strokes for a board
+
+| Method | Route                 | Description                 |
+| ------ | --------------------- | --------------------------- |
+| GET    | `/me`                 | Get test user info          |
+| POST   | `/boards`             | Create new board            |
+| GET    | `/boards`             | List all boards (test user) |
+| GET    | `/boards/:id`         | Get a board by ID           |
+| PATCH  | `/boards/:id`         | Rename a board              |
+| DELETE | `/boards/:id`         | Soft delete a board         |
+| POST   | `/boards/:id/strokes` | Save drawing strokes        |
+| GET    | `/boards/:id/strokes` | Get all strokes for a board |
+
