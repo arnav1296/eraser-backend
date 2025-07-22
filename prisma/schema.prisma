@@ -13,6 +13,7 @@ datasource db {
 model User {
   id        String   @id @default(cuid()) // Using cuid() for shorter, URL-safe IDs, as previously discussed.
   email     String   @unique // User's email, must be unique
+  password  String  //hashed password
   name      String?  // Optional name
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
