@@ -1,66 +1,47 @@
-import express from 'express';
-import cors from 'cors';
-import { PrismaClient } from '@prisma/client';
+// src/index.js
+const express = require("express");
+const cors = require("cors");
+const prisma = require('./services/prisma'); // Import the single Prisma instance
 
 const app = express();
-const prisma = new PrismaClient();
 
-app.use(cors());
+app.use(cors({
+    origin: ['http://localhost:5173', 'YOUR_PROD_FRONTEND_URL'], // Crucial: ensure frontend URL is allowed
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 app.use(express.json());
 
-// Root route
-app.get('/', (req, res) => {
-  res.send('Eraser v1 backend running');
+// --- Import and Register Routes ---
+const authRoutes = require("./routes/auth.routes"); // Public auth routes (NO AUTH MIDDLEWARE HERE)
+const appRoutes = require("./routes"); // Your current routes.js, which now contains PROTECTED routes
+
+// Register public auth routes FIRST
+app.use("/api/auth", authRoutes); // e.g., /api/auth/test-token is now public
+
+// Register all other protected app routes
+app.use("/api", appRoutes); // e.g., /api/boards, /api/users/me are protected
+
+// Root route (Health Check)
+app.get("/", (req, res) => {
+  res.send("Eraser v1 backend running");
 });
 
-// Create a new board
-app.post('/boards', async (req, res) => {
-  try {
-    const { title } = req.body;
-    const board = await prisma.board.create({ data: { title } });
-    res.status(201).json(board);
-  } catch (err) {
-    res.status(500).json({ error: 'Error creating board' });
-  }
-});
-
-// Get all boards
-app.get('/boards', async (req, res) => {
-  const boards = await prisma.board.findMany();
-  res.json(boards);
-});
-
-// Get strokes for a specific board
-app.get('/boards/:id/strokes', async (req, res) => {
-  const { id } = req.params;
-  const strokes = await prisma.stroke.findMany({
-    where: { boardId: id },
-  });
-  res.json(strokes);
-});
-
-// Add a stroke to a board
-app.post('/boards/:id/strokes', async (req, res) => {
-  const { id } = req.params;
-  const { points, color, width } = req.body;
-
-  try {
-    const stroke = await prisma.stroke.create({
-      data: {
-        points,
-        color,
-        width,
-        board: { connect: { id } },
-      },
+// Global error handler
+app.use((err, req, res, next) => {
+    console.error("Global Error Handler:", err.stack);
+    res.status(err.statusCode || 500).json({
+        message: err.message || 'Something went wrong!',
+        error: process.env.NODE_ENV === 'development' ? err : {},
     });
-    res.status(201).json(stroke);
-  } catch (err) {
-    res.status(500).json({ error: 'Error saving stroke' });
-  }
 });
 
-// Start the server
+// Conditional Server Start
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server ready at http://localhost:${PORT}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server ready at http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;
