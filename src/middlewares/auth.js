@@ -1,5 +1,5 @@
 // --- src/middlewares/auth.js ---
-// This middleware is responsible for authenticating requests using a JWT.
+
 const { verifyToken } = require("../services/jwt");
 const prisma = require("../services/prisma");
 const authMiddleware = async (req, res, next) => {
