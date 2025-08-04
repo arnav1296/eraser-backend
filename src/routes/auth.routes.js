@@ -1,24 +1,24 @@
-// src/routes/auth.routes.js
+// --- src/routes/auth.routes.js ---
+// This file contains all public authentication routes, including login and registration.
+// It is explicitly for unprotected endpoints.
 const express = require("express");
-const prisma = require("../services/prisma"); // Import prisma
-const { generateToken } = require("../services/jwt"); // Import jwt utility
+const prisma = require("../services/prisma");
+const { generateToken } = require("../services/jwt");
 const bcrypt = require("bcrypt");
 
 const router = express.Router();
 
-// Temporary route to get a test JWT for local development (UNPROTECTED)
-// This is the /api/auth/test-token endpoint
 router.get("/test-token", async (req, res, next) => {
   try {
-    let user = await prisma.user.findFirst(); // Try to find any existing user
+    let user = await prisma.user.findFirst();
 
     if (!user) {
-      // If no user exists, create a dummy one for testing
+      const hashedPassword = await bcrypt.hash("Test1234", 10);
       user = await prisma.user.create({
         data: {
           email: "testuser@example.com",
           name: "Test User",
-          password: "Test123",
+          hashedPassword,
         },
       });
       console.log("Created a dummy user for testing:", user.email);
@@ -32,39 +32,34 @@ router.get("/test-token", async (req, res, next) => {
     });
   } catch (error) {
     console.error("Error generating test token:", error);
-    next(error); // Pass error to global error handler
+    res.status(500).json({ message: "Failed to generate test token", error: error.message });
   }
 });
 
-
-//register route
-router.post("/register", async (req, res) => {
+router.post("/register", async (req, res, next) => {
   try {
-    //regex for valid email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const { name, email, password } = req.body;
     if (!email || !password) {
-      return res
-        .status(400)
-        .json({ message: "Email and password are required" });
+      return res.status(400).json({ message: "Email and password are required" });
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return res.status(400).json({ message: "Please provide valid email" });
+      return res.status(400).json({ message: "Please provide a valid email" });
     }
+    
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       return res.status(409).json({ message: "Email already registered" });
     }
 
-    //hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await prisma.user.create({
       data: {
         name: name || "New User",
         email,
-        password: hashedPassword,
+        hashedPassword,
       },
     });
 
@@ -76,26 +71,24 @@ router.post("/register", async (req, res) => {
       user: { id: newUser.id, email: newUser.email, name: newUser.name },
     });
   } catch (err) {
-    console.error("Error registering: ", err);
+    console.error("Error registering:", err);
+    res.status(500).json({ message: "Failed to register user" });
   }
 });
 
-
-//login route
-router.post("/login", async (req, res) => {
+router.post("/login", async (req, res, next) => {
   try {
-    const { name, email, password } = req.body;
+    const { email, password } = req.body;
     if (!email || !password) {
       return res.status(401).json({ message: "Please provide credentials" });
     }
+
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
-      return res
-        .status(401)
-        .json({ message: "Invaild Credentials Email not registered" });
+      return res.status(401).json({ message: "Invalid Credentials: Email not registered" });
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(password, user.hashedPassword);
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
@@ -108,8 +101,8 @@ router.post("/login", async (req, res) => {
       user: { id: user.id, email: user.email, name: user.name },
     });
   } catch (err) {
-    console.err("Error: ", err);
+    console.error("Error during login:", err);
+    res.status(500).json({ message: "Failed to login" });
   }
 });
-
 module.exports = router;

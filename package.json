@@ -22,11 +22,15 @@
   "homepage": "https://github.com/abhinav29102005/eraser-backend#readme",
   "dependencies": {
     "@prisma/client": "^6.11.1",
+    "@y/websocket-server": "^0.1.1",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.0",
     "express": "^5.1.0",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "ws": "^8.18.3",
+    "y-websocket": "^3.0.0",
+    "yjs": "^13.6.27"
   },
   "devDependencies": {
     "jest": "^30.0.4",
