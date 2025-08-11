@@ -5,11 +5,11 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite" // for local use, or "postgresql" if later switching to Neon
+  provider = "postgresql" // for local use, or "postgresql" if later switching to Neon
   url      = env("DATABASE_URL")
 }
 
-// --- NEW/CORRECTED: User Model ---
+// User Model
 model User {
   id        String   @id @default(cuid()) // Using cuid() for shorter, URL-safe IDs, as previously discussed.
   email     String   @unique // User's email, must be unique
@@ -20,7 +20,7 @@ model User {
   boards    Board[] // Relation to Board model: A User can have many Boards
 }
 
-// --- CORRECTED: Board Model ---
+// Board Model
 model Board {
   id        String   @id @default(cuid()) // Using cuid() for shorter, URL-safe IDs
   title     String?  @default("Untitled Board") // Using 'title' for consistency and default value
@@ -34,7 +34,7 @@ model Board {
   strokes   Stroke[] // Relation to Stroke model: A Board can have many Strokes
 }
 
-// --- CORRECTED: Stroke Model ---
+// Stroke Model
 model Stroke {
   id          String    @id @default(cuid()) // Using cuid() for consistency
   points      Json      // Storing XY points as JSON
